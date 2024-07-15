@@ -1,170 +1,178 @@
 const svg = document.getElementById('svgLine');
-        const path = document.getElementById('interactiveLine');
-        const numPoints = 100;
-        const points = [];
-        let isDragging = false;
-        let dragIndex = null;
-        let animation;
+const path = document.getElementById('interactiveLine');
+const numPoints = 100;
+let points = [];
+let isDragging = false;
+let dragIndex = null;
+let animation;
 
-        // Inicializa los puntos de la línea con ondas ajustables
-        function initializePoints() {
-            const width = svg.clientWidth;
-            const height = svg.clientHeight;
+// Inicializa los puntos de la línea con ondas ajustables
+function initializePoints() {
+    const width = svg.clientWidth;
+    const height = svg.clientHeight;
 
-            // Ajusta estas variables para cambiar la forma de cada onda
-            const waveFrequencies = [0.5, 0.35, -0.62, 0.51, 0.32]; // Frecuencia de las ondas para cada segmento
-            const waveHeights = [-24, 180, 170, 76, -200]; // Amplitud de las ondas para cada segmento
-            const waveVerticalShifts = [0.3, 0.4, 0.66, 0.86, 0.86]; // suman 1.5 Desplazamiento vertical de las ondas (0 a 1, donde 0 es en la parte superior y 1 en la parte inferior) para cada segmento
-            const waveWidths = [0.05, 0.15, 0.5, 0.15 , 0.15]; // sSuman 1 Ancho relativo de cada segmento de onda
+    points = []; // Reiniciar puntos
 
-            const totalWidthFactor = waveWidths.reduce((acc, width) => acc + width, 0);
-            let accumulatedWidth = 0;
+    // Ajusta estas variables para cambiar la forma de cada onda
+    const waveFrequencies = [0.5, 0.35, -0.67, 0.58, 0.3]; // Frecuencia de las ondas para cada segmento
+    const waveHeights = [-24, 180, 150, 33, -100]; // Amplitud de las ondas para cada segmento
+    const waveVerticalShifts = [0.41, 0.4, 0.59, 0.759, 0.74]; // suman 1.5 Desplazamiento vertical de las ondas (0 a 1, donde 0 es en la parte superior y 1 en la parte inferior) para cada segmento
+    const waveWidths = [0.05, 0.15, 0.52, 0.14, 0.14]; // sSuman 1 Ancho relativo de cada segmento de onda
 
-            for (let i = 0; i <= numPoints; i++) {
-                const relativeIndex = i / numPoints;
-                const segmentIndex = waveWidths.findIndex((width, index) => relativeIndex <= waveWidths.slice(0, index + 1).reduce((a, b) => a + b, 0) / totalWidthFactor);
+    const totalWidthFactor = waveWidths.reduce((acc, width) => acc + width, 0);
+    let accumulatedWidth = 0;
 
-                const waveFrequency = waveFrequencies[segmentIndex];
-                const waveHeight = waveHeights[segmentIndex];
-                const waveVerticalShift = waveVerticalShifts[segmentIndex];
-                const waveWidth = waveWidths[segmentIndex];
+    for (let i = 0; i <= numPoints; i++) {
+        const relativeIndex = i / numPoints;
+        const segmentIndex = waveWidths.findIndex((width, index) => relativeIndex <= waveWidths.slice(0, index + 1).reduce((a, b) => a + b, 0) / totalWidthFactor);
 
-                const segmentWidth = (waveWidth / totalWidthFactor) * width;
-                const relativeX = (relativeIndex - accumulatedWidth) / waveWidth;
-                const x = accumulatedWidth * width + segmentWidth * relativeX;
-                const y = height * waveVerticalShift + Math.sin(relativeX * waveFrequency * Math.PI * 2) * waveHeight;
+        const waveFrequency = waveFrequencies[segmentIndex];
+        const waveHeight = waveHeights[segmentIndex];
+        const waveVerticalShift = waveVerticalShifts[segmentIndex];
+        const waveWidth = waveWidths[segmentIndex];
 
-                points.push({ x, y, originalX: x, originalY: y });
+        const segmentWidth = (waveWidth / totalWidthFactor) * width;
+        const relativeX = (relativeIndex - accumulatedWidth) / waveWidth;
+        const x = accumulatedWidth * width + segmentWidth * relativeX;
+        const y = height * waveVerticalShift + Math.sin(relativeX * waveFrequency * Math.PI * 2) * waveHeight;
 
-                if (relativeIndex >= accumulatedWidth + waveWidth / totalWidthFactor) {
-                    accumulatedWidth += waveWidth / totalWidthFactor;
-                }
-            }
+        points.push({ x, y, originalX: x, originalY: y });
 
-            drawPath();
+        if (relativeIndex >= accumulatedWidth + waveWidth / totalWidthFactor) {
+            accumulatedWidth += waveWidth / totalWidthFactor;
         }
+    }
 
-        // Dibuja la línea utilizando los puntos
-        function drawPath() {
-            const d = points.reduce((acc, point, i) => {
-                return acc + (i === 0 ? `M ${point.x},${point.y}` : ` L ${point.x},${point.y}`);
-            }, '');
+    drawPath();
+}
 
-            path.setAttribute('d', d);
+// Dibuja la línea utilizando los puntos
+function drawPath() {
+    const d = points.reduce((acc, point, i) => {
+        return acc + (i === 0 ? `M ${point.x},${point.y}` : ` L ${point.x},${point.y}`);
+    }, '');
+
+    path.setAttribute('d', d);
+}
+
+// Efecto hover suave con deformación de onda extendida
+function hoverEffect(event) {
+    if (isDragging) return; // Anula el efecto hover si se está arrastrando
+
+    const rect = svg.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    const hoverRadius = 200; // Radio extendido de la zona afectada por el hover
+    const waveAmplitude = 35; // Amplitud de la onda
+    const waveLength = 180; // Longitud de la onda
+
+    points.forEach(point => {
+        const distance = Math.hypot(point.x - mouseX, point.y - mouseY);
+
+        if (distance < hoverRadius) {
+            const factor = 1 - distance / hoverRadius;
+            const offsetY = waveAmplitude * Math.sin(distance / waveLength * 2 * Math.PI); // Deformación tipo onda extendida
+            point.y = point.originalY + offsetY * factor;
+        } else {
+            point.y = point.originalY;
         }
+    });
 
-        // Efecto hover suave con deformación de onda extendida
-        function hoverEffect(event) {
-            if (isDragging) return; // Anula el efecto hover si se está arrastrando
+    drawPath();
+}
 
-            const rect = svg.getBoundingClientRect();
-            const mouseX = event.clientX - rect.left;
-            const mouseY = event.clientY - rect.top;
+// Deforma la línea cuando se arrastra con el mouse
+function deformLine(event) {
+    if (!isDragging) return;
 
-            const hoverRadius = 200; // Radio extendido de la zona afectada por el hover
-            const waveAmplitude = 35; // Amplitud de la onda
-            const waveLength = 180; // Longitud de la onda
+    const rect = svg.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
 
-            points.forEach(point => {
-                const distance = Math.hypot(point.x - mouseX, point.y - mouseY);
+    // Calcula la diferencia del movimiento del mouse
+    const dx = mouseX - points[dragIndex].x;
+    const dy = mouseY - points[dragIndex].y;
 
-                if (distance < hoverRadius) {
-                    const factor = 1 - distance / hoverRadius;
-                    const offsetY = waveAmplitude * Math.sin(distance / waveLength * 2 * Math.PI); // Deformación tipo onda extendida
-                    point.y = point.originalY + offsetY * factor;
-                } else {
-                    point.y = point.originalY;
-                }
-            });
+    // Actualiza la posición del punto arrastrado
+    points[dragIndex].x = mouseX;
+    points[dragIndex].y = mouseY;
 
-            drawPath();
+    // Deforma todos los puntos según la diferencia del movimiento del mouse
+    points.forEach((point, index) => {
+        if (index !== dragIndex) {
+            const factor = Math.exp(-0.1 * Math.abs(dragIndex - index));
+            point.x += dx * factor;
+            point.y += dy * factor;
         }
+    });
 
-        // Deforma la línea cuando se arrastra con el mouse
-        function deformLine(event) {
-            if (!isDragging) return;
+    drawPath();
+}
 
-            const rect = svg.getBoundingClientRect();
-            const mouseX = event.clientX - rect.left;
-            const mouseY = event.clientY - rect.top;
+// Anima la línea de vuelta a su forma original usando GSAP de manera suave y natural
+function resetLine() {
+    if (animation) animation.kill();
 
-            // Calcula la diferencia del movimiento del mouse
-            const dx = mouseX - points[dragIndex].x;
-            const dy = mouseY - points[dragIndex].y;
+    animation = gsap.to(points, {
+        duration: 1.9, // Duración más corta para un efecto de retorno rápido pero suave
+        x: i => points[i].originalX,
+        y: i => points[i].originalY,
+        ease: "power2.out", // Función de ease para una animación más natural
+        onUpdate: drawPath
+    });
+}
 
-            // Actualiza la posición del punto arrastrado
-            points[dragIndex].x = mouseX;
-            points[dragIndex].y = mouseY;
+// Encuentra el punto más cercano al cursor del mouse cuando se hace clic
+function findClosestPoint(mouseX, mouseY) {
+    let closestIndex = null;
+    let minDistance = Infinity;
 
-            // Deforma todos los puntos según la diferencia del movimiento del mouse
-            points.forEach((point, index) => {
-                if (index !== dragIndex) {
-                    const factor = Math.exp(-0.1 * Math.abs(dragIndex - index));
-                    point.x += dx * factor;
-                    point.y += dy * factor;
-                }
-            });
-
-            drawPath();
+    points.forEach((point, index) => {
+        const distance = Math.hypot(point.x - mouseX, point.y - mouseY);
+        if (distance < minDistance) {
+            minDistance = distance;
+            closestIndex = index;
         }
+    });
 
-        // Anima la línea de vuelta a su forma original usando GSAP de manera suave y natural
-        function resetLine() {
-            if (animation) animation.kill();
+    return closestIndex;
+}
 
-            animation = gsap.to(points, {
-                duration: 1.9, // Duración más corta para un efecto de retorno rápido pero suave
-                x: i => points[i].originalX,
-                y: i => points[i].originalY,
-                ease: "power2.out", // Función de ease para una animación más natural
-                onUpdate: drawPath
-            });
-        }
+// Eventos de mouse para manejar el arrastre y la deformación de la línea
+svg.addEventListener('mousedown', (event) => {
+    isDragging = true;
+    if (animation) animation.kill();
 
-        // Encuentra el punto más cercano al cursor del mouse cuando se hace clic
-        function findClosestPoint(mouseX, mouseY) {
-            let closestIndex = null;
-            let minDistance = Infinity;
+    const rect = svg.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+    dragIndex = findClosestPoint(mouseX, mouseY);
+});
 
-            points.forEach((point, index) => {
-                const distance = Math.hypot(point.x - mouseX, point.y - mouseY);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestIndex = index;
-                }
-            });
+svg.addEventListener('mousemove', (event) => {
+    deformLine(event);
+    hoverEffect(event);
+});
 
-            return closestIndex;
-        }
+svg.addEventListener('mouseup', () => {
+    isDragging = false;
+    dragIndex = null;
+    resetLine();
+});
 
-        // Eventos de mouse para manejar el arrastre y la deformación de la línea
-        svg.addEventListener('mousedown', (event) => {
-            isDragging = true;
-            if (animation) animation.kill();
+svg.addEventListener('mouseleave', () => {
+    isDragging = false;
+    dragIndex = null;
+    resetLine();
+});
 
-            const rect = svg.getBoundingClientRect();
-            const mouseX = event.clientX - rect.left;
-            const mouseY = event.clientY - rect.top;
-            dragIndex = findClosestPoint(mouseX, mouseY);
-        });
+// Inicializa los puntos y dibuja la línea
+initializePoints();
+drawPath();
 
-        svg.addEventListener('mousemove', (event) => {
-            deformLine(event);
-            hoverEffect(event);
-        });
-
-        svg.addEventListener('mouseup', () => {
-            isDragging = false;
-            dragIndex = null;
-            resetLine();
-        });
-
-        svg.addEventListener('mouseleave', () => {
-            isDragging = false;
-            dragIndex = null;
-            resetLine();
-        });
-
-        // Inicializa los puntos y dibuja la línea
-        initializePoints();
-        drawPath();
+// Recalcula los puntos y redibuja la línea cuando cambia el tamaño de la ventana
+window.addEventListener('resize', () => {
+    initializePoints();
+    drawPath();
+});
