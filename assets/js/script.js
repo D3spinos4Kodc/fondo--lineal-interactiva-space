@@ -6,25 +6,62 @@ let isDragging = false;
 let dragIndex = null;
 let animation;
 
-// Inicializa los puntos de la línea con una única onda ajustable
+// Inicializa los puntos de la línea utilizando coordenadas predefinidas para mantener la forma de la imagen
 function initializePoints() {
     const width = svg.clientWidth;
     const height = svg.clientHeight;
 
     points = []; // Reiniciar puntos
 
-    const waveFrequency = 1; // Frecuencia de la onda
-    const waveHeight = 150; // Amplitud de la onda
-    const waveVerticalShift = 0.5; // Desplazamiento vertical de la onda (0 a 1, donde 0 es en la parte superior y 1 en la parte inferior)
+    // Coordenadas predefinidas para que coincidan con la imagen proporcionada
+    const predefinedPoints = [
+        { x: 0., y: 0.25 * height },
+        { x: 0.06 * width, y: 0.25 * height },
+        { x: 0.19 * width, y: 0.63 * height },
+        { x: 0.36 * width, y: 0.45 * height },
+        { x: 0.5 * width, y: 0.53 * height },
+        { x: 0.75 * width, y: 0.92 * height },
+        { x: 0.91 * width, y: 0.52 * height },
+        { x: 1 * width, y: 0.53 * height },
+        { x: 1 * width, y: 0.54 * height }
+    ];
 
+    // Interpolar los puntos predefinidos para crear una línea suave
     for (let i = 0; i <= numPoints; i++) {
-        const relativeIndex = i / numPoints;
-        const x = relativeIndex * width;
-        const y = height * waveVerticalShift + Math.sin(relativeIndex * waveFrequency * Math.PI * 2) * waveHeight;
-        points.push({ x, y, originalX: x, originalY: y });
+        const t = i / numPoints;
+        const p = interpolate(predefinedPoints, t);
+        points.push({ x: p.x, y: p.y, originalX: p.x, originalY: p.y });
     }
 
     drawPath();
+}
+
+// Función de interpolación para suavizar los puntos predefinidos
+function interpolate(points, t) {
+    const n = points.length - 1;
+    const k = Math.floor(t * n);
+    const f = t * n - k;
+
+    const p0 = points[Math.max(0, k - 1)];
+    const p1 = points[k];
+    const p2 = points[Math.min(n, k + 1)];
+    const p3 = points[Math.min(n, k + 2)];
+
+    const x = cubicInterpolate(p0.x, p1.x, p2.x, p3.x, f);
+    const y = cubicInterpolate(p0.y, p1.y, p2.y, p3.y, f);
+
+    return { x, y };
+}
+
+// Función de interpolación cúbica
+function cubicInterpolate(p0, p1, p2, p3, t) {
+    return (
+        0.5 *
+        ((2 * p1) +
+            (-p0 + p2) * t +
+            (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t +
+            (-p0 + 3 * p1 - 3 * p2 + p3) * t * t * t)
+    );
 }
 
 // Dibuja la línea utilizando los puntos
