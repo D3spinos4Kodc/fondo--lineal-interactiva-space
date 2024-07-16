@@ -6,41 +6,22 @@ let isDragging = false;
 let dragIndex = null;
 let animation;
 
-// Inicializa los puntos de la línea con ondas ajustables
+// Inicializa los puntos de la línea con una única onda ajustable
 function initializePoints() {
     const width = svg.clientWidth;
     const height = svg.clientHeight;
 
     points = []; // Reiniciar puntos
 
-    // Ajusta estas variables para cambiar la forma de cada onda
-    const waveFrequencies = [0.5, 0.35, -0.67, 0.58, 0.3]; // Frecuencia de las ondas para cada segmento
-    const waveHeights = [-24, 180, 150, 33, -100]; // Amplitud de las ondas para cada segmento
-    const waveVerticalShifts = [0.41, 0.4, 0.59, 0.759, 0.74]; // suman 1.5 Desplazamiento vertical de las ondas (0 a 1, donde 0 es en la parte superior y 1 en la parte inferior) para cada segmento
-    const waveWidths = [0.05, 0.15, 0.52, 0.14, 0.14]; // sSuman 1 Ancho relativo de cada segmento de onda
-
-    const totalWidthFactor = waveWidths.reduce((acc, width) => acc + width, 0);
-    let accumulatedWidth = 0;
+    const waveFrequency = 1; // Frecuencia de la onda
+    const waveHeight = 150; // Amplitud de la onda
+    const waveVerticalShift = 0.5; // Desplazamiento vertical de la onda (0 a 1, donde 0 es en la parte superior y 1 en la parte inferior)
 
     for (let i = 0; i <= numPoints; i++) {
         const relativeIndex = i / numPoints;
-        const segmentIndex = waveWidths.findIndex((width, index) => relativeIndex <= waveWidths.slice(0, index + 1).reduce((a, b) => a + b, 0) / totalWidthFactor);
-
-        const waveFrequency = waveFrequencies[segmentIndex];
-        const waveHeight = waveHeights[segmentIndex];
-        const waveVerticalShift = waveVerticalShifts[segmentIndex];
-        const waveWidth = waveWidths[segmentIndex];
-
-        const segmentWidth = (waveWidth / totalWidthFactor) * width;
-        const relativeX = (relativeIndex - accumulatedWidth) / waveWidth;
-        const x = accumulatedWidth * width + segmentWidth * relativeX;
-        const y = height * waveVerticalShift + Math.sin(relativeX * waveFrequency * Math.PI * 2) * waveHeight;
-
+        const x = relativeIndex * width;
+        const y = height * waveVerticalShift + Math.sin(relativeIndex * waveFrequency * Math.PI * 2) * waveHeight;
         points.push({ x, y, originalX: x, originalY: y });
-
-        if (relativeIndex >= accumulatedWidth + waveWidth / totalWidthFactor) {
-            accumulatedWidth += waveWidth / totalWidthFactor;
-        }
     }
 
     drawPath();
