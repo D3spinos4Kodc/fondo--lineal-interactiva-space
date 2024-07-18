@@ -194,3 +194,32 @@ window.addEventListener('resize', () => {
     initializePoints();
     drawPath();
 });
+
+// Animación del asteroide
+const asteroid = document.getElementById('asteroid');
+
+function animateAsteroid() {
+    gsap.set(asteroid, {
+        x: window.innerWidth * 1.1,
+        y: -100,
+        scale: 0.02,
+        rotation: 0,
+        zIndex: 0,
+        opacity: 0.8
+    });
+
+    gsap.to(asteroid, {
+        duration: 18,
+        x: -200,
+        y: window.innerHeight + 100,
+        scale: 3,
+        rotation: 220,
+        zIndex: 9, // Ajusta el z-index para que pase por encima de todos los elementos
+        opacity: 1, // Incrementa la opacidad a medida que se mueve
+        ease: "power1.inOut",
+        onComplete: animateAsteroid
+    });
+}
+
+// Inicia la animación del asteroide
+animateAsteroid();

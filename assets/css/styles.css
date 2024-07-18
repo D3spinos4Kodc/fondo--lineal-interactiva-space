@@ -1,6 +1,7 @@
 body {
     margin: 0;
     background-color: #000;
+    overflow: hidden;
 }
 svg {
     display: block;
@@ -13,3 +14,13 @@ path {
     stroke-width: 2;
 }
 
+#asteroid {
+    position: absolute;
+    width: 40%; /* Ajusta el tamaño inicial según sea necesario */
+    height: auto;
+    top: -20%; /* Inicia fuera de la pantalla */
+    left: -45%; /* Inicia fuera de la pantalla */
+    opacity: 1; /* Ajusta la opacidad inicial */
+    z-index: 0; /* Inicia detrás de todos los elementos */
+    pointer-events: none; /* Evita la captura de eventos del mouse */
+}
