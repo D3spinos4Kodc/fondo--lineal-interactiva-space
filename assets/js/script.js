@@ -197,29 +197,44 @@ window.addEventListener('resize', () => {
 
 // Animación del asteroide
 const asteroid = document.getElementById('asteroid');
+const cardForm = document.getElementById('cardForm');
 
 function animateAsteroid() {
-    gsap.set(asteroid, {
-        x: window.innerWidth * 1.1,
-        y: -100,
-        scale: 0.02,
-        rotation: 0,
-        zIndex: 0,
-        opacity: 0.8
+    // Crear una línea de tiempo para la animación
+    const tl = gsap.timeline({ onComplete: animateAsteroid });
+
+    tl.set(asteroid, {
+        x: '126vw', // Ajustar a la pantalla
+        y: '-16vh', // Ajustar a la pantalla
+        scale: 0.001,
+        rotation: -100,
+        zIndex: 4,
+        opacity: 1
     });
 
-    gsap.to(asteroid, {
-        duration: 18,
-        x: -200,
-        y: window.innerHeight + 100,
-        scale: 3,
-        rotation: 220,
-        zIndex: 9, // Ajusta el z-index para que pase por encima de todos los elementos
-        opacity: 1, // Incrementa la opacidad a medida que se mueve
-        ease: "power1.inOut",
-        onComplete: animateAsteroid
+    tl.to(asteroid, {
+        duration: 14, // Mitad de la duración total para llegar a la posición de cruce
+        x: '75vw', // Ajustar a la pantalla
+        y: '25vh', // Ajustar a la pantalla
+        scale: 0.45,
+        rotation: 60,
+        ease:"power1.in",
+        onStart: () => gsap.to(cardForm1, { duration: 3, opacity: 1 }), // Reduce la opacidad de las tabs al iniciar el cruce
+        onComplete: () => gsap.to(cardForm1, { duration: 0.1, opacity: 0.3 }) // Restaura la opacidad de las tabs al completar el cruce
+    });
+
+    tl.to(asteroid, {
+        duration: 6, // Mitad de la duración total para terminar la animación
+        x: '20.5vw', // Ajustar a la pantalla
+        y: '68vh', // Ajustar a la pantalla
+        scale: 1.1,
+        rotation: 160,
+        zIndex: 15, // Ajusta el z-index para que pase por encima de todos los elementos
+        opacity: 2, // Incrementar la opacidad a medida que se mueve
+        ease:"none",
     });
 }
 
 // Inicia la animación del asteroide
 animateAsteroid();
+
