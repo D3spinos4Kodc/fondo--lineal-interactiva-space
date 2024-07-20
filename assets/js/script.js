@@ -195,43 +195,48 @@ window.addEventListener('resize', () => {
     drawPath();
 });
 
-// Animación del asteroide
+// ANIMACION DEL ASTEROIDE
+
 const asteroid = document.getElementById('asteroid');
-const cardForm = document.getElementById('cardForm');
+const cardForm = document.getElementById('cardForm1');
 
 function animateAsteroid() {
     // Crear una línea de tiempo para la animación
     const tl = gsap.timeline({ onComplete: animateAsteroid });
 
     tl.set(asteroid, {
-        x: '126vw', // Ajustar a la pantalla
-        y: '-16vh', // Ajustar a la pantalla
-        scale: 0.001,
+        x: '126vw', // Ajuste de pantalla
+        y: '-16vh', // Ajuste de pantalla
+        scale: 0.0001,
         rotation: -100,
         zIndex: 4,
-        opacity: 1
+        opacity: 1, 
+        
     });
 
     tl.to(asteroid, {
-        duration: 14, // Mitad de la duración total para llegar a la posición de cruce
-        x: '75vw', // Ajustar a la pantalla
-        y: '25vh', // Ajustar a la pantalla
+        duration: 14, // Mitad de la duración total para llegar a la posición de cruce     
+        x: '75vw', // Ajuste de pantalla
+        y: '25vh', // Ajuste de pantalla
         scale: 0.45,
         rotation: 60,
         ease:"power1.in",
-        onStart: () => gsap.to(cardForm1, { duration: 3, opacity: 1 }), // Reduce la opacidad de las tabs al iniciar el cruce
-        onComplete: () => gsap.to(cardForm1, { duration: 0.1, opacity: 0.3 }) // Restaura la opacidad de las tabs al completar el cruce
+       onStart: () => gsap.to(cardForm1, { duration: 0.5, opacity: 1 }), // Reduce la opacidad de las tabs al iniciar el cruce
+        onComplete: () => gsap.to(cardForm1, { duration: 0.2, opacity: 0 }) // Reduce la opacidad de las tabs al completar el cruce
+    
     });
 
     tl.to(asteroid, {
         duration: 6, // Mitad de la duración total para terminar la animación
-        x: '20.5vw', // Ajustar a la pantalla
-        y: '68vh', // Ajustar a la pantalla
+        x: '20.5vw', // Ajuste de pantalla
+        y: '68vh', // Ajuste de pantalla
         scale: 1.1,
         rotation: 160,
-        zIndex: 15, // Ajusta el z-index para que pase por encima de todos los elementos
-        opacity: 2, // Incrementar la opacidad a medida que se mueve
+        zIndex: 15, // Ajuste del z-index para que pase por encima de todos los elementos
         ease:"none",
+        onStart2: () => gsap.to(cardForm1, { duration:3, opacity: 0 }), // Reestaura la opacidad de las tabs al iniciar el cruce
+       onStart2: () => gsap.to(cardForm1, { duration:5, opacity: 1 }), // Reestaura la opacidad de las tabs al iniciar el cruce
+         
     });
 }
 
