@@ -221,8 +221,8 @@ function animateAsteroid() {
         scale: 0.45,
         rotation: 60,
         ease:"power1.in",
-       onStart: () => gsap.to(cardForm1, { duration: 0.5, opacity: 1 }), // Reduce la opacidad de las tabs al iniciar el cruce
-        onComplete: () => gsap.to(cardForm1, { duration: 0.2, opacity: 0 }) // Reduce la opacidad de las tabs al completar el cruce
+       onStart: () => gsap.to(cardForm1, { duration: 0.8, opacity: 1 }), // Reduce la opacidad de las tabs al iniciar el cruce
+        onComplete: () => gsap.to(cardForm1, { duration: 0.15, opacity: 0 }) // Reduce la opacidad de las tabs al completar el cruce
     
     });
 
@@ -235,7 +235,7 @@ function animateAsteroid() {
         zIndex: 15, // Ajuste del z-index para que pase por encima de todos los elementos
         ease:"none",
         onStart2: () => gsap.to(cardForm1, { duration:3, opacity: 0 }), // Reestaura la opacidad de las tabs al iniciar el cruce
-       onStart2: () => gsap.to(cardForm1, { duration:5, opacity: 1 }), // Reestaura la opacidad de las tabs al iniciar el cruce
+       onStart2: () => gsap.to(cardForm1, { duration:6, opacity: 1 }), // Reestaura la opacidad de las tabs al iniciar el cruce
          
     });
 }
