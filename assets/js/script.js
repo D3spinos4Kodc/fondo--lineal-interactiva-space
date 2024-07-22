@@ -205,8 +205,8 @@ function animateAsteroid() {
     const tl = gsap.timeline({ onComplete: animateAsteroid });
 
     tl.set(asteroid, {
-        x: '126vw', // Ajuste de pantalla
-        y: '-16vh', // Ajuste de pantalla
+        x: '126vw', // Ajustar a la pantalla
+        y: '-16vh', // Ajustar a la pantalla
         scale: 0.0001,
         rotation: -100,
         zIndex: 4,
@@ -216,30 +216,29 @@ function animateAsteroid() {
 
     tl.to(asteroid, {
         duration: 14, // Mitad de la duración total para llegar a la posición de cruce     
-        x: '75vw', // Ajuste de pantalla
-        y: '25vh', // Ajuste de pantalla
+        x: '75vw', // Ajustar a la pantalla
+        y: '25vh', // Ajustar a la pantalla
         scale: 0.45,
         rotation: 60,
         ease:"power1.in",
        onStart: () => gsap.to(cardForm1, { duration: 0.8, opacity: 1 }), // Reduce la opacidad de las tabs al iniciar el cruce
-        onComplete: () => gsap.to(cardForm1, { duration: 0.15, opacity: 0 }) // Reduce la opacidad de las tabs al completar el cruce
+        onComplete: () => gsap.to(cardForm1, { duration: 0.15, opacity: 0 }) // Restaura la opacidad de las tabs al completar el cruce
     
     });
 
     tl.to(asteroid, {
         duration: 6, // Mitad de la duración total para terminar la animación
-        x: '20.5vw', // Ajuste de pantalla
-        y: '68vh', // Ajuste de pantalla
+        x: '20.5vw', // Ajustar a la pantalla
+        y: '68vh', // Ajustar a la pantalla
         scale: 1.1,
         rotation: 160,
-        zIndex: 15, // Ajuste del z-index para que pase por encima de todos los elementos
+        zIndex: 15, // Ajusta el z-index para que pase por encima de todos los elementos
         ease:"none",
-        onStart2: () => gsap.to(cardForm1, { duration:3, opacity: 0 }), // Reestaura la opacidad de las tabs al iniciar el cruce
-       onStart2: () => gsap.to(cardForm1, { duration:6, opacity: 1 }), // Reestaura la opacidad de las tabs al iniciar el cruce
+        onStart2: () => gsap.to(cardForm1, { duration:3, opacity: 0 }), // Reduce la opacidad de las tabs al iniciar el cruce
+       onStart2: () => gsap.to(cardForm1, { duration:6, opacity: 1 }), // Reduce la opacidad de las tabs al iniciar el cruce
          
     });
 }
 
 // Inicia la animación del asteroide
 animateAsteroid();
-
