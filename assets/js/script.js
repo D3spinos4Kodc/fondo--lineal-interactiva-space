@@ -13,7 +13,7 @@ function initializePoints() {
 
     points = []; // Reiniciar puntos
 
-    // Coordenadas predefinidas para que coincidan con la imagen proporcionada
+    // Coordenadas predefinidas 
     const predefinedPoints = [
         { x: 0., y: 0.4 * height },
         { x: 0.06 * width, y: 0.36 * height },
@@ -33,7 +33,7 @@ function initializePoints() {
         points.push({ x: p.x, y: p.y, originalX: p.x, originalY: p.y });
     }
 
-    drawPath();
+    drawSmoothPath();
 }
 
 // Función de interpolación para suavizar los puntos predefinidos
@@ -64,12 +64,18 @@ function cubicInterpolate(p0, p1, p2, p3, t) {
     );
 }
 
-// Dibuja la línea utilizando los puntos
-function drawPath() {
-    const d = points.reduce((acc, point, i) => {
-        return acc + (i === 0 ? `M ${point.x},${point.y}` : ` L ${point.x},${point.y}`);
-    }, '');
-
+// Dibuja la línea utilizando los puntos con una interpolación más suave
+function drawSmoothPath() {
+    let d = `M ${points[0].x},${points[0].y}`;
+    for (let i = 1; i < points.length - 2; i += 2) {
+        const cp1x = points[i].x;
+        const cp1y = points[i].y;
+        const cp2x = points[i + 1].x;
+        const cp2y = points[i + 1].y;
+        const endX = points[i + 2].x;
+        const endY = points[i + 2].y;
+        d += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${endX},${endY}`;
+    }
     path.setAttribute('d', d);
 }
 
@@ -82,22 +88,22 @@ function hoverEffect(event) {
     const mouseY = event.clientY - rect.top;
 
     const hoverRadius = 280; // Radio extendido de la zona afectada por el hover
-    const waveAmplitude = 15; // Amplitud de la onda
-    const waveLength = 180; // Longitud de la onda
+    const waveAmplitude = 20; // Amplitud de la onda
+    const waveLength = 190; // Longitud de la onda
 
     points.forEach(point => {
         const distance = Math.hypot(point.x - mouseX, point.y - mouseY);
 
         if (distance < hoverRadius) {
-            const factor = 1.3 - distance / hoverRadius;
-            const offsetY = waveAmplitude * Math.sin(distance / waveLength * -1.3 * Math.PI); // Deformación tipo onda extendida
+            const factor = 1 - distance / hoverRadius;
+            const offsetY = waveAmplitude * Math.sin(distance / waveLength * -1.8 * Math.PI); // Deformación tipo onda extendida
             point.y = point.originalY + offsetY * factor;
         } else {
             point.y = point.originalY;
         }
     });
 
-    drawPath();
+    drawSmoothPath();
 }
 
 // Deforma la línea cuando se arrastra con el mouse
@@ -125,7 +131,7 @@ function deformLine(event) {
         }
     });
 
-    drawPath();
+    drawSmoothPath();
 }
 
 // Anima la línea de vuelta a su forma original usando GSAP de manera suave y natural
@@ -137,7 +143,7 @@ function resetLine() {
         x: i => points[i].originalX,
         y: i => points[i].originalY,
         ease: "power2.out", // Función de ease para una animación más natural
-        onUpdate: drawPath
+        onUpdate: drawSmoothPath
     });
 }
 
@@ -187,16 +193,13 @@ svg.addEventListener('mouseleave', () => {
 
 // Inicializa los puntos y dibuja la línea
 initializePoints();
-drawPath();
+drawSmoothPath();
 
 // Recalcula los puntos y redibuja la línea cuando cambia el tamaño de la ventana
 window.addEventListener('resize', () => {
     initializePoints();
-    drawPath();
+    drawSmoothPath();
 });
-
-
-
 
 // ANIMACION ASTEROIDE
 const asteroid = document.getElementById('asteroid');
@@ -212,35 +215,36 @@ function animateAsteroid() {
         scale: 0.0001,
         rotation: -100,
         zIndex: 4,
-        opacity: 1, 
+        opacity: 1,
         
     });
 
     tl.to(asteroid, {
-        duration: 14, // Mitad de la duración total para llegar a la posición de cruce     
+        duration: 14, // Mitad de la duración total para llegar a la posición de cruce
         x: '75vw', // Ajustar a la pantalla
         y: '25vh', // Ajustar a la pantalla
         scale: 0.45,
         rotation: 60,
-        ease:"power1.in",
-       onStart: () => gsap.to(cardForm1, { duration: 0.8, opacity: 1 }), // Reduce la opacidad de las tabs al iniciar el cruce
-        onComplete: () => gsap.to(cardForm1, { duration: 0.15, opacity: 0 }) // Restaura la opacidad de las tabs al completar el cruce
-    
+        ease: "power2.inOut",
     });
 
     tl.to(asteroid, {
-        duration: 6, // Mitad de la duración total para terminar la animación
-        x: '20.5vw', // Ajustar a la pantalla
-        y: '68vh', // Ajustar a la pantalla
-        scale: 1.1,
-        rotation: 160,
-        zIndex: 15, // Ajusta el z-index para que pase por encima de todos los elementos
-        ease:"none",
-        onStart2: () => gsap.to(cardForm1, { duration:3, opacity: 0 }), // Reduce la opacidad de las tabs al iniciar el cruce
-       onStart2: () => gsap.to(cardForm1, { duration:6, opacity: 1 }), // Reduce la opacidad de las tabs al iniciar el cruce
-         
+        duration: 14, // Mitad de la duración total para alejarse de la posición de cruce
+        x: '-13vw', // Ajustar a la pantalla
+        y: '40vh', // Ajustar a la pantalla
+        scale: 0.0001,
+        rotation: 80,
+        ease: "power2.inOut",
+        zIndex: 4,
+        opacity: 1,
     });
 }
 
-// Inicia la animación del asteroide
+// Iniciar la animación del asteroide
 animateAsteroid();
+
+window.addEventListener('resize', () => {
+    initializePoints();
+    drawSmoothPath();
+    animateAsteroid(); // Reiniciar la animación del asteroide en el nuevo tamaño de pantalla
+});
