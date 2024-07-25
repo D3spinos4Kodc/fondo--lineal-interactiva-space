@@ -15,15 +15,15 @@ function initializePoints() {
 
     // Coordenadas predefinidas para que coincidan con la imagen proporcionada
     const predefinedPoints = [
-        { x: 0., y: 0.25 * height },
-        { x: 0.06 * width, y: 0.25 * height },
-        { x: 0.19 * width, y: 0.63 * height },
-        { x: 0.36 * width, y: 0.45 * height },
-        { x: 0.5 * width, y: 0.53 * height },
-        { x: 0.75 * width, y: 0.92 * height },
-        { x: 0.91 * width, y: 0.52 * height },
-        { x: 1 * width, y: 0.53 * height },
-        { x: 1 * width, y: 0.54 * height }
+        { x: 0., y: 0.4 * height },
+        { x: 0.06 * width, y: 0.36 * height },
+        { x: 0.19 * width, y: 0.73 * height },
+        { x: 0.36 * width, y: 0.55 * height },
+        { x: 0.5 * width, y: 0.63 * height },
+        { x: 0.75 * width, y: 0.97 * height },
+        { x: 0.91 * width, y: 0.62 * height },
+        { x: 1 * width, y: 0.63 * height },
+        { x: 1 * width, y: 0.64 * height }
     ];
 
     // Interpolar los puntos predefinidos para crear una línea suave
@@ -81,16 +81,16 @@ function hoverEffect(event) {
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
 
-    const hoverRadius = 200; // Radio extendido de la zona afectada por el hover
-    const waveAmplitude = 35; // Amplitud de la onda
+    const hoverRadius = 280; // Radio extendido de la zona afectada por el hover
+    const waveAmplitude = 15; // Amplitud de la onda
     const waveLength = 180; // Longitud de la onda
 
     points.forEach(point => {
         const distance = Math.hypot(point.x - mouseX, point.y - mouseY);
 
         if (distance < hoverRadius) {
-            const factor = 1 - distance / hoverRadius;
-            const offsetY = waveAmplitude * Math.sin(distance / waveLength * 2 * Math.PI); // Deformación tipo onda extendida
+            const factor = 1.3 - distance / hoverRadius;
+            const offsetY = waveAmplitude * Math.sin(distance / waveLength * -1.3 * Math.PI); // Deformación tipo onda extendida
             point.y = point.originalY + offsetY * factor;
         } else {
             point.y = point.originalY;
@@ -119,7 +119,7 @@ function deformLine(event) {
     // Deforma todos los puntos según la diferencia del movimiento del mouse
     points.forEach((point, index) => {
         if (index !== dragIndex) {
-            const factor = Math.exp(-0.1 * Math.abs(dragIndex - index));
+            const factor = Math.exp(-0.4 * Math.abs(dragIndex - index));
             point.x += dx * factor;
             point.y += dy * factor;
         }
@@ -133,7 +133,7 @@ function resetLine() {
     if (animation) animation.kill();
 
     animation = gsap.to(points, {
-        duration: 1.9, // Duración más corta para un efecto de retorno rápido pero suave
+        duration: 1.1, // Duración más corta para un efecto de retorno rápido pero suave
         x: i => points[i].originalX,
         y: i => points[i].originalY,
         ease: "power2.out", // Función de ease para una animación más natural
@@ -195,8 +195,10 @@ window.addEventListener('resize', () => {
     drawPath();
 });
 
-// ANIMACION DEL ASTEROIDE
 
+
+
+// ANIMACION ASTEROIDE
 const asteroid = document.getElementById('asteroid');
 const cardForm = document.getElementById('cardForm1');
 
